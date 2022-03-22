@@ -20,6 +20,10 @@ class Client:
 
                 if message == "NICK":
                     self.client.send(self.nickname.encode(self.encoding))
+                elif message == "DISCONNECT":
+                    print("You have been disconnected by the server.")
+                    self.client.close()
+                    break
                 else:
                     print(message)
             except Exception as e:
@@ -29,7 +33,7 @@ class Client:
 
     def write(self):
         while True:
-            message = f'{self.nickname}: {input("")}'
+            message = input("")
             self.client.send(message.encode(self.encoding))
 
     def start(self):
@@ -38,6 +42,7 @@ class Client:
 
         write_thread = threading.Thread(target=self.write)
         write_thread.start()
+
 
 if __name__ == "__main__":
     nickname = input("Enter a nickname: ")
