@@ -41,13 +41,22 @@ class Server:
             self.broadcast(sender=client, message=message)
 
     def nick_in_use(self, nickname):
+        in_use = False
         try:
             self.users[nickname]
+        except KeyError:
+            pass
+        else:
+            in_use = True
+
+        try:
             self.clients[nickname]
         except KeyError:
-            return False
+            pass
         else:
-            return True
+            in_use = True
+
+        return in_use
 
     def listen(self, client: dclasses.Client):
         while True:
@@ -67,8 +76,8 @@ class Server:
             client, address = self.server.accept()
             print(f"{str(address)} has connected.")
 
-            client.send('NICK'.encode("utf-8"))
-            nickname = client.recv(1024).decode("utf-8")
+            client.send('NICK'.encode(self.encoding))
+            nickname = client.recv(1024).decode(self.encoding)
 
             if self.nick_in_use(nickname):
                 client.send('Nick in use'.encode("utf-8"))
@@ -77,8 +86,6 @@ class Server:
 
             client_obj = dclasses.Client(client=client, address=address, nickname=nickname)
             self.clients[nickname] = client_obj
-
-            print(f"{str(address)} identified as {nickname}.")
 
             self.broadcast(sender=None, message=f"{nickname} has joined the chat!")
             self.message_client(client=client_obj, message="Connected to the server")
