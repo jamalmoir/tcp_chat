@@ -1,17 +1,12 @@
 import threading
 import socket
-from typing import Callable, Dict, Optional
+from typing import Dict, Optional
 import dclasses
 import server_commands
 
 HOST = '127.0.0.1'
 PORT = 9239
 ENCODING = 'utf-8'
-
-COMMAND_MAP: Dict[str, Callable[["Server", dclasses.Client, str], None]] = {
-    "claim": server_commands.claim,
-    "login": lambda server, client, message: None,
-}
 
 
 class Server:
@@ -38,7 +33,7 @@ class Server:
         if message[0] == "/":
             command = message[1:].split(" ")[0]
             try:
-                COMMAND_MAP[command](server=self, client=client, message=message)
+                server_commands.COMMAND_MAP[command](server=self, client=client, message=message)
             except KeyError:
                 self.message_client(client=client, message=f"Unknown command: {command}")
         else:
@@ -59,7 +54,7 @@ class Server:
             try:
                 message = client.client.recv(1024).decode(self.encoding)
                 self.handle_message(client=client, message=message)
-            except Exception as e:
+            except Exception:
                 client.client.close()
                 del self.clients[client.nickname]
 
