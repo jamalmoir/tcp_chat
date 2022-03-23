@@ -41,22 +41,7 @@ class Server:
             self.broadcast(sender=client, message=message)
 
     def nick_in_use(self, nickname):
-        in_use = False
-        try:
-            self.users[nickname]
-        except KeyError:
-            pass
-        else:
-            in_use = True
-
-        try:
-            self.clients[nickname]
-        except KeyError:
-            pass
-        else:
-            in_use = True
-
-        return in_use
+        return nickname in self.users.keys() or nickname in self.clients.keys()
 
     def listen(self, client: dclasses.Client):
         while True:
