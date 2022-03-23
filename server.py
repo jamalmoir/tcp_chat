@@ -80,8 +80,8 @@ class Server:
             nickname = client.recv(1024).decode(self.encoding)
 
             if self.nick_in_use(nickname):
-                client.send('Nick in use'.encode("utf-8"))
-                client.send('DISCONNECT'.encode("utf-8"))
+                client.send('Nick in use'.encode(self.encoding))
+                client.send('DISCONNECT'.encode(self.encoding))
                 continue
 
             client_obj = dclasses.Client(client=client, address=address, nickname=nickname)
