@@ -7,7 +7,7 @@ ENCODING = 'utf-8'
 
 
 class Client:
-    def __init__(self, host, port, encoding, nickname):
+    def __init__(self, host:str, port: int, encoding: str, nickname: str):
         self.encoding = encoding
         self.nickname = nickname
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,14 +18,14 @@ class Client:
             try:
                 message = self.client.recv(1024).decode(self.encoding)
 
-                if message == "NICK":
+                if message == "NICK\n":
                     self.client.send(self.nickname.encode(self.encoding))
-                elif message == "DISCONNECT":
+                elif message == "DISCONNECT\n":
                     print("You have been disconnected by the server.")
                     self.client.close()
                     break
                 else:
-                    print(message)
+                    print(message, end="")
             except Exception as e:
                 print(f"An error occurred: {e}")
                 self.client.close()

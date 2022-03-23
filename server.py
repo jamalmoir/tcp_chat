@@ -1,6 +1,6 @@
 import threading
 import socket
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 import dclasses
 import server_commands
 
@@ -19,15 +19,15 @@ class Server:
         self.server.bind((host, port))
         self.server.listen()
 
-    def message_client(self, client: dclasses.Client, message: str):
-        client.client.send(message.encode(self.encoding))
+    def message_client(self, client: Any, message: str):
+        client.send((message + '\n').encode(self.encoding))
 
     def broadcast(self, sender: Optional[dclasses.Client], message: str):
         for client in self.clients.values():
             if sender == client:
                 continue
 
-            self.message_client(client=client, message=message)
+            self.message_client(client=client.client, message=message)
 
     def handle_message(self, client: dclasses.Client, message: str):
         if message[0] == "/":
@@ -76,19 +76,20 @@ class Server:
             client, address = self.server.accept()
             print(f"{str(address)} has connected.")
 
-            client.send('NICK'.encode(self.encoding))
+            self.message_client(client=client, message='NICK')
             nickname = client.recv(1024).decode(self.encoding)
 
             if self.nick_in_use(nickname):
-                client.send('Nick in use'.encode(self.encoding))
-                client.send('DISCONNECT'.encode(self.encoding))
+                self.message_client(client=client, message='Nick in use')
+                self.message_client(client=client, message='DISCONNECT')
+                print(f"{str(address)} was disconnected: Nick in use.")
                 continue
 
             client_obj = dclasses.Client(client=client, address=address, nickname=nickname)
             self.clients[nickname] = client_obj
 
             self.broadcast(sender=None, message=f"{nickname} has joined the chat!")
-            self.message_client(client=client_obj, message="Connected to the server")
+            self.message_client(client=client_obj.client, message="Connected to the server")
 
             handle_thread = threading.Thread(target=self.listen, args=(client_obj,))
             handle_thread.start()
