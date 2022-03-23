@@ -7,7 +7,7 @@ ENCODING = 'utf-8'
 
 
 class Client:
-    def __init__(self, host:str, port: int, encoding: str, nickname: str):
+    def __init__(self, host: str, port: int, encoding: str, nickname: str):
         self.encoding = encoding
         self.nickname = nickname
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
